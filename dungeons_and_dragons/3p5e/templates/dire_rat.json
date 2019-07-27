@@ -1,0 +1,50 @@
+{
+    "species": "Dire Rat",
+    "size": "small",
+    "speeds": {
+        "nominal": 40,
+        "climb": 20
+    },
+    "ability_scores": {
+        "str": 10,
+        "dex": 17,
+        "con": 12,
+        "int": 1,
+        "wis": 12,
+        "chr": 4},
+    "saves": {
+        "fort": 3,
+        "ref": 5,
+        "will": 3},
+    "hit_dice": 1,
+    "hd_type": 8,
+    "bonus_hp": 1,
+    "nat_armor": 1,
+    "base_attack": [
+        0 ],
+    "grapple": -4,
+    "attacks": [
+        {
+            "name": "Bite",
+            "type": "piercing",
+            "damage": "1d4",
+            "range": "melee",
+            "critical": "x2",
+            "effects": ["disease"]
+        }
+    ],
+    "special_attacks": ["Disease"],
+    "special_qualities": ["Low-Light Vision", "Scent"],
+    "feats": [
+        "Alertness",
+        "Weapon Finesse"
+        ],
+    "skills": {
+        "Climb": 11,
+        "Hide": 1,
+        "Listen": 3,
+        "Move Silently": 1,
+        "Spot": 3,
+        "Swim": 11
+    }
+}

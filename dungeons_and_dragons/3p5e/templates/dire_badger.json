@@ -1,0 +1,47 @@
+{
+    "species": "Dire Badger",
+    "size": "medium",
+    "speeds": {
+        "nominal": 30,
+        "burrow": 10
+    },
+    "ability_scores": {
+        "str": 14,
+        "dex": 17,
+        "con": 19,
+        "int": 2,
+        "wis": 12,
+        "chr": 10},
+    "saves": {
+        "fort": 7,
+        "ref": 6,
+        "will": 4},
+    "hit_dice": 3,
+    "hd_type": 8,
+    "bonus_hp": 15,
+    "nat_armor": 3,
+    "base_attack": [
+        2 ],
+    "grapple": 4,
+    "attacks": [
+        {
+            "name": "Claw",
+            "type": "piercing",
+            "damage": "1d4",
+            "range": "melee",
+            "critical": "x2",
+            "effects": []
+        }
+    ],
+    "special_attacks": ["Rage"],
+    "special_qualities": ["Low-Light Vision", "Scent"],
+    "feats": [
+        "Alertness",
+        "Toughness",
+        "Track"
+        ],
+    "skills": {
+        "Listen": 6,
+        "Spot": 6
+    }
+}
