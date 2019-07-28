@@ -12,7 +12,7 @@ Here be da tools.
 ## Animal Companion Leveler
 
 Codifies the algorithm for Druids' animal companions for 3.5 edition according
-to [this wiki|http://archive.wizards.com/default.asp?x=dnd/rg/20070206a].
+to [this wiki](http://archive.wizards.com/default.asp?x=dnd/rg/20070206a).
 
 ### Usage
 
