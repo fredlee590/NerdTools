@@ -185,11 +185,15 @@ def print_char_sheet(a, stats, specs, tricks):
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("base_json", help="Base animal profile. Basic information from Monster Manual")
+    parser.add_argument("base_json",
+                        help="Base animal profile from Monster Manual. JSON file format.")
     parser.add_argument("druid_lvl", type=int, help="Druid level to determine bonuses")
-    parser.add_argument("--name", "-n", default="(Unnamed)", help="Name of your animal companion")
-    parser.add_argument("--descriptions", "-d", action='store_true', help="Show ability descriptions")
-    parser.add_argument("--changes", "-c", help="Changes for your animal companion. Feats, skills, and the like")
+    parser.add_argument("--name", "-n", default="(Unnamed)",
+                        help="Name of your animal companion")
+    parser.add_argument("--descriptions", "-d", action='store_true',
+                        help="Show ability descriptions")
+    parser.add_argument("--changes", "-c",
+                        help="Changes for your animal companion. JSON file format.")
 
     return parser.parse_args()
 
