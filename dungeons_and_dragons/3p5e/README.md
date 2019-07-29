@@ -21,13 +21,14 @@ template compiled from the Monster Manual and the druid's level. From there,
 adding options can print out more detailed information. The full help is below:
 
 ```
+$ ./animal_companion_lvl_up.py --help
 usage: animal_companion_lvl_up.py [-h] [--name NAME] [--descriptions]
                                   [--changes CHANGES]
                                   base_json druid_lvl
 
 positional arguments:
-  base_json             Base animal profile. Basic information from Monster
-                        Manual
+  base_json             Base animal profile from Monster Manual. JSON file
+                        format.
   druid_lvl             Druid level to determine bonuses
 
 optional arguments:
@@ -35,8 +36,7 @@ optional arguments:
   --name NAME, -n NAME  Name of your animal companion
   --descriptions, -d    Show ability descriptions
   --changes CHANGES, -c CHANGES
-                        Changes for your animal companion. Feats, skills, and
-                        the like
+                        Changes for your animal companion. JSON file format.
 ```
 
 All data and inputs is (currently) handled in the JSON file format. All fields in the included base animal templates are required, so start there to create a new one. A sample change file, which represents the additional skills and feats for an animal companion is shown below:
