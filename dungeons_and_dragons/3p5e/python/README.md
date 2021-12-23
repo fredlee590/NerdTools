@@ -1,13 +1,7 @@
-# Dungeons and Dragons 3.5e Tools
+Dungeons and Dragons 3.5e Python Tools
+======================================
 
-# Overview
-
-Sometimes, math is hard. Dungeons and Dragons doesn't have to be. Here are some
-tools to handle some repetitive tasks.
-
-# Tools
-
-Here be da tools.
+# The Tools
 
 ## Animal Companion Leveler
 
