@@ -3,16 +3,9 @@
 import csv
 import argparse
 import logging
-from config import DESC_COL, CHARGED_COL, PAID_COL, skip_regex
+from config import DESC_COL, CHARGED_COL, PAID_COL, check_skip
 
 logger = logging.getLogger(__name__)
-
-# helper function: skip those above
-def check_skip(desc):
-    for regex in skip_regex:
-        if regex in desc:
-            return True
-    return False
 
 def parse_args():
     parser = argparse.ArgumentParser()
