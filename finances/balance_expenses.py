@@ -33,6 +33,7 @@ if __name__ == '__main__':
                 logger.debug("Invalidly formatted length. Skipping")
 
             logger.debug(row)
+            # 2021-01-01,Person 1,1.23,food from today
             date, user, _, note = row
             cost = float(row[2])
 
