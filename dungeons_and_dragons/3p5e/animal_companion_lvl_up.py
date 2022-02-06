@@ -122,10 +122,12 @@ def print_char_sheet(a, stats, specs, tricks):
             else:
                 effects_str = effect
 
+        dmg_mod = attack['add_damage'] + str_mod
+
         print(f"{attack['name']}:")
         print(f"  Attack: {dex_attack_str}")
         print(f"  Range: {attack['range']}")
-        print(f"  Damage: {attack['damage']} + {str_mod} ({attack['critical']})")
+        print(f"  Damage: {attack['damage']} + {dmg_mod} ({attack['critical']})")
         print(f"  Type: {attack['type']}")
         print(f"  Effects: {effects_str}")
         print()
