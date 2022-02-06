@@ -58,7 +58,7 @@ def print_char_sheet(a, stats, specs, tricks):
     hd = stats["hit_dice"]
     bhp = stats["bonus_hp"]
     hd_type = stats["hd_type"]
-    hp = int(hd * (get_avg_roll(hd_type) + bhp))
+    hp = int(hd * get_avg_roll(hd_type)) + bhp
 
     feat_hp = 3 if "Toughness" in stats["feats"] else 0
 
@@ -218,5 +218,5 @@ if __name__ == '__main__':
         new, spr = update(base, mods, None)
         print_char_sheet(args, new, specs, None)
 
-    if spr is not 0:
+    if spr != 0:
         print(f"WARNING: You still have {spr} skill points available for allocation")
