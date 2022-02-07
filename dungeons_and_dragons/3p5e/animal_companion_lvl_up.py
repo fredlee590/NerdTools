@@ -35,7 +35,7 @@ def update(base, mods, changes):
         new["feats"] += changes["new_feats"]
     len_feats = len(new["feats"])
     assert len_feats == num_allowed_feats, \
-           f'Unexpected feats ({len_feats} vs {num_allowed_feats} allowed)'
+           f'Expected {num_allowed_feats} feats. {len_feats} detected.'
 
     if "new_skills" in changes.keys():
         cand_int_mod = new["ability_scores"]["int"]
@@ -48,16 +48,14 @@ def update(base, mods, changes):
             except KeyError:
                 new["skills"][i] = v
             tsp += v
-            if tsp > masp:
-                logger.error(f"You are {tsp - masp} skill points over limit")
-                sys.exit(1)
+        assert masp == tsp, \
+               f"Expected {masp} skill points allocated. {tsp} allocated."
 
-        if tsp < masp != 0:
-            logger.error(f"You still have {masp - tsp} skill points available for allocation")
-            sys.exit(1)
-
-    new["max_allowed_tricks"] = mods["bonus"]["tricks"]
     if "new_tricks" in changes.keys():
+        exp_num_tricks = mods["bonus"]["tricks"]
+        obs_num_tricks = len(changes["new_tricks"])
+        assert exp_num_tricks == obs_num_tricks, \
+               f"Expected {exp_num_tricks} tricks. Detected {obs_num_tricks}."
         new["tricks"] = changes["new_tricks"]
     else:
         new["tricks"] = list()
@@ -137,7 +135,8 @@ def print_char_sheet(args, stats, specs):
                 effects_str = effect
 
         atk_range = attack['range']
-        assert atk_range == 'melee' or 'ft' in atk_range
+        assert atk_range == 'melee' or 'ft' in atk_range, \
+               "Invalid attack information. Need melee or range in feet."
         attr_mod = str_mod if atk_range == 'melee' else dex_mod
 
         dmg_mod = attack['add_damage'] + str_mod
@@ -197,12 +196,6 @@ def print_char_sheet(args, stats, specs):
     tricks = stats["tricks"]
     for trick in tricks:
         print(trick)
-
-    max_allowed_tricks = new["max_allowed_tricks"]
-    num_tricks = len(tricks)
-    trick_diff = max_allowed_tricks - num_tricks
-    if num_tricks < max_allowed_tricks:
-        logger.warn(f"You still have {trick_diff} bonus tricks to choose")
 
 def parse_args():
     parser = argparse.ArgumentParser()
