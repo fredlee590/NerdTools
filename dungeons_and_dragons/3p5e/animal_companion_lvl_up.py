@@ -49,10 +49,10 @@ def update(base, mods, changes):
                 print(f"Max allowed skill points exceeded ({tsp} > {masp})")
                 sys.exit(1)
 
-        new["max_allowed_tricks"] = mods["bonus"]["tricks"]
     else:
         masp = tsp = 0
 
+    new["max_allowed_tricks"] = mods["bonus"]["tricks"]
     if "new_tricks" in changes.keys():
         new["tricks"] = changes["new_tricks"]
     else:
@@ -185,18 +185,17 @@ def print_char_sheet(args, stats, specs):
         print(f"{skill_name}: {new_skill_val}")
     print()
 
+    print("----- Bonus Tricks -----")
     tricks = stats["tricks"]
-    if tricks:
-        print("----- Bonus Tricks -----")
-        for trick in tricks:
-            print(trick)
+    for trick in tricks:
+        print(trick)
 
-        max_allowed_tricks = new["max_allowed_tricks"]
-        num_tricks = len(tricks)
-        trick_diff = max_allowed_tricks - num_tricks
-        if num_tricks < max_allowed_tricks: 
-            print(f"WARNING: You still have {trick_diff} bonus tricks to choose")
-        print()
+    max_allowed_tricks = new["max_allowed_tricks"]
+    num_tricks = len(tricks)
+    trick_diff = max_allowed_tricks - num_tricks
+    if num_tricks < max_allowed_tricks:
+        print(f"WARNING: You still have {trick_diff} bonus tricks to choose")
+    print()
 
 def parse_args():
     parser = argparse.ArgumentParser()
