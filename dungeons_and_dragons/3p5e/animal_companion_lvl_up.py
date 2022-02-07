@@ -38,7 +38,10 @@ def update(base, mods, new_skills):
         tsp = 0
         masp = 2 + (new["hit_dice"] * int_mod)
         for i, v in new_skills.items():
-            new["skills"][i] += v
+            try:
+                new["skills"][i] += v
+            except KeyError:
+                new["skills"][i] = v
             tsp += v
             if tsp > masp:
                 print(f"Max allowed skill points exceeded ({tsp} > {masp})")
