@@ -34,7 +34,7 @@ def update(base, mods, changes):
     assert len_feats == num_allowed_feats, \
            f'Unexpected feats ({len_feats} vs {num_allowed_feats} allowed)'
 
-    if changes["new_skills"]:
+    if "new_skills" in changes.keys():
         cand_int_mod = new["ability_scores"]["int"]
         int_mod = 1 if cand_int_mod < 0 else cand_int_mod
         tsp = 0
@@ -52,9 +52,15 @@ def update(base, mods, changes):
         new["max_allowed_tricks"] = mods["bonus"]["tricks"]
     else:
         masp = tsp = 0
+
+    if "new_tricks" in changes.keys():
+        new["tricks"] = changes["new_tricks"]
+    else:
+        new["tricks"] = list()
+
     return new, masp - tsp
 
-def print_char_sheet(a, stats, specs, tricks):
+def print_char_sheet(a, stats, specs):
     print("=" * len(a.name))
     print(a.name)
     print("=" * len(a.name))
@@ -179,6 +185,7 @@ def print_char_sheet(a, stats, specs, tricks):
         print(f"{skill_name}: {new_skill_val}")
     print()
 
+    tricks = stats["tricks"]
     if tricks:
         print("----- Bonus Tricks -----")
         for trick in tricks:
@@ -219,12 +226,11 @@ if __name__ == '__main__':
     if args.changes:
         with open(args.changes) as f:
             changes = json.load(f)
-
-        new, spr = update(base, mods, changes)
-        print_char_sheet(args, new, specs, changes["new_tricks"])
     else:
-        new, spr = update(base, mods, None)
-        print_char_sheet(args, new, specs, None)
+        changes = dict()
+
+    new, spr = update(base, mods, changes)
+    print_char_sheet(args, new, specs)
 
     if spr != 0:
         print(f"WARNING: You still have {spr} skill points available for allocation")
