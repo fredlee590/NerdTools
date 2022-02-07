@@ -126,6 +126,7 @@ def print_char_sheet(args, stats):
     dex_mod = get_mod_from_score(stats["ability_scores"]["dex"])
     nat_armor = stats["nat_armor"]
     ac_size_mod, grap_size_mod, hide_size_mod = get_size_mods(size_str)
+    print(f"Natural Armor: {nat_armor}  Size AC Mod: {ac_size_mod}")
     ac = 10 + dex_mod + nat_armor + ac_size_mod
     tac = ac - nat_armor
     ffac = ac - dex_mod
