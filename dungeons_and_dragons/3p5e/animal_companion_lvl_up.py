@@ -95,21 +95,16 @@ def print_char_sheet(a, stats, specs, tricks):
     ffac = ac - dex_mod
     print(f"Armor Class: {ac}  Touch AC: {tac}  Flat-Footed AC: {ffac}")
 
-    base_attack_str = None
-    grapple_str = None
-    dex_attack_str = None
     init_str = mod_int_to_str(dex_mod)
-    for i in stats["base_attack"]:
-        grapple_val = i + str_mod + grap_size_mod
-        dex_attack_val = i + dex_mod + ac_size_mod
-        if base_attack_str:
-            base_attack_str += f"/{mod_int_to_str(i)}"
-            grapple_str += f"/{mod_int_to_str(grapple_val)}"
-            dex_attack_str += f"/{mod_int_to_str(dex_attack_val)}"
-        else:
-            base_attack_str = mod_int_to_str(i)
-            grapple_str = mod_int_to_str(grapple_val)
-            dex_attack_str = mod_int_to_str(dex_attack_val)
+    base_atks = stats["base_attack"]
+    base_prim_atk = base_atks[0]
+
+    grapples_str = [mod_int_to_str(x + str_mod + grap_size_mod) \
+                    for x in base_atks]
+    base_attack_str = '/'.join([mod_int_to_str(x) \
+                                for x in base_atks])
+    grapple_str = mod_int_to_str(base_prim_atk + str_mod + \
+                                 grap_size_mod)
     print(f"Base Attack: {base_attack_str}  Grapple: {grapple_str}  Initiative: {init_str}")
 
     print()
@@ -122,10 +117,16 @@ def print_char_sheet(a, stats, specs, tricks):
             else:
                 effects_str = effect
 
+        atk_range = attack['range']
+        assert atk_range == 'melee' or 'ft' in atk_range
+        attr_mod = str_mod if atk_range == 'melee' else dex_mod
+
         dmg_mod = attack['add_damage'] + str_mod
+        atk_mod = attack['add_attack'] + attr_mod + base_prim_atk
+        atk_mod_str = mod_int_to_str(atk_mod)
 
         print(f"{attack['name']}:")
-        print(f"  Attack: {dex_attack_str}")
+        print(f"  Attack: {atk_mod_str}")
         print(f"  Range: {attack['range']}")
         print(f"  Damage: {attack['damage']} + {dmg_mod} ({attack['critical']})")
         print(f"  Type: {attack['type']}")
