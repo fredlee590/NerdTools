@@ -49,8 +49,9 @@ def update(base, mods, changes):
                 print(f"Max allowed skill points exceeded ({tsp} > {masp})")
                 sys.exit(1)
 
-    else:
-        masp = tsp = 0
+        if tsp < masp != 0:
+            print(f"WARNING: You still have {masp - tsp} skill points available for allocation")
+            sys.exit(1)
 
     new["max_allowed_tricks"] = mods["bonus"]["tricks"]
     if "new_tricks" in changes.keys():
@@ -58,7 +59,7 @@ def update(base, mods, changes):
     else:
         new["tricks"] = list()
 
-    return new, masp - tsp
+    return new
 
 def print_char_sheet(args, stats, specs):
     print("=" * len(args.name))
@@ -228,8 +229,6 @@ if __name__ == '__main__':
     else:
         changes = dict()
 
-    new, spr = update(base, mods, changes)
+    new = update(base, mods, changes)
     print_char_sheet(args, new, specs)
 
-    if spr != 0:
-        print(f"WARNING: You still have {spr} skill points available for allocation")
