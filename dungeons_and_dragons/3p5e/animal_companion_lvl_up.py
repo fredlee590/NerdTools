@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 def update(base, mods, specials, changes):
 
     new = base
+    logger.debug(f'init: {new}')
     new["hit_dice"] += mods["bonus"]["hit_dice"]
     new["nat_armor"] += mods["bonus"]["nat_armor"]
     new["ability_scores"]["str"] += mods["bonus"]["str_dex"]
@@ -31,12 +32,16 @@ def update(base, mods, specials, changes):
     new["saves"]["will"] += hd_mods[2]
     new["specials"] = specials
 
+    logger.debug(f'pre-changes: {new}')
+
     num_allowed_feats = int(new["hit_dice"] / 3 + 1)
     if "new_feats" in changes.keys():
         new["feats"] += changes["new_feats"]
     len_feats = len(new["feats"])
     assert len_feats == num_allowed_feats, \
            f'Expected {num_allowed_feats} feats. {len_feats} detected.'
+
+    logger.debug(f'post-feats: {new}')
 
     if "new_skills" in changes.keys():
         cand_int_mod = new["ability_scores"]["int"]
@@ -52,6 +57,8 @@ def update(base, mods, specials, changes):
         assert masp == tsp, \
                f"Expected {masp} skill points allocated. {tsp} allocated."
 
+    logger.debug(f'post-skills: {new}')
+
     if "new_tricks" in changes.keys():
         exp_num_tricks = mods["bonus"]["tricks"]
         obs_num_tricks = len(changes["new_tricks"])
@@ -60,6 +67,8 @@ def update(base, mods, specials, changes):
         new["tricks"] = changes["new_tricks"]
     else:
         new["tricks"] = list()
+
+    logger.debug(f'post-tricks: {new}')
 
     return new
 
