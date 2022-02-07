@@ -21,5 +21,10 @@ descriptions = {
     "special_qualities": {
         "Low-Light Vision": "A creature with low-light vision can see twice as far as a human in starlight, moonlight, torchlight, and similar conditions of shadowy illumination. It retains the ability to distinguish color and detail under these conditions. A spellcaster with low-light vision can read a scroll as long as even the tiniest candle flame is next to her as a source of light.",
         "Scent": "The creature can detect opponents within 30 feet by sense of smell. If the opponent is upwind, the range increases to 60 feet; if downwind, it drops to 15 feet. Strong scents, such as smoke or rotting garbage, can be detected at twice the ranges noted above. Overpowering scents, such as skunk musk or troglodyte stench, can be detected at triple normal range."
+    },
+    "tricks": {
+        "Attack": "The animal attacks apparent enemies. You may point to a particular creature that you wish the animal to attack, and it will comply if able.",
+        "Guard": "The animal stays in place and prevents others from approaching.",
+        "Fetch": "The animal goes and gets something. If you do not point out a specific item, the animal fetches some random object."
     }
 }

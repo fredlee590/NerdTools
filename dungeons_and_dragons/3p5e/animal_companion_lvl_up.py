@@ -14,7 +14,7 @@ from lib.dnd_desc import descriptions
 logger = logging.getLogger(__name__)
 
 
-def update(base, mods, changes):
+def update(base, mods, specials, changes):
 
     new = base
     new["hit_dice"] += mods["bonus"]["hit_dice"]
@@ -29,6 +29,7 @@ def update(base, mods, changes):
     new["saves"]["fort"] += hd_mods[0]
     new["saves"]["ref"] += hd_mods[1]
     new["saves"]["will"] += hd_mods[2]
+    new["specials"] = specials
 
     num_allowed_feats = int(new["hit_dice"] / 3 + 1)
     if "new_feats" in changes.keys():
@@ -62,10 +63,19 @@ def update(base, mods, changes):
 
     return new
 
-def print_char_sheet(args, stats, specs):
+def print_char_sheet(args, stats):
     def print_space_if_desc():
         if not args.descriptions:
             print()
+
+    def print_list_and_descs(label, list_id):
+        print(f"----- {label} -----")
+        for i in stats[list_id]:
+            print(f'{i.upper()}')
+            if args.descriptions:
+                print(descriptions[list_id][i])
+                print()
+        print_space_if_desc()
 
     print("=" * len(args.name))
     print(args.name)
@@ -151,35 +161,11 @@ def print_char_sheet(args, stats, specs):
         print(f"  Effects: {effects_str}")
         print()
 
-    print("----- Special Attacks -----")
-    for spec_attack in stats["special_attacks"]:
-        print(spec_attack)
-        if args.descriptions:
-            print(descriptions["special_attacks"][spec_attack])
-            print()
-    print_space_if_desc()
-
-    print("----- Specials -----")
-    for spec in specs:
-        print(spec)
-        if args.descriptions:
-            print(descriptions["specials"][spec])
-            print()
-
-    for spec_qual in stats["special_qualities"]:
-        print(spec_qual)
-        if args.descriptions:
-            print(descriptions["special_qualities"][spec_qual])
-            print()
-    print_space_if_desc()
-    
-    print("----- Feats -----")
-    for feat in stats["feats"]:
-        print(feat)
-        if args.descriptions:
-            print(descriptions["feats"][feat])
-            print()
-    print_space_if_desc()
+    print_list_and_descs("Special Attacks", "special_attacks")
+    print_list_and_descs("Special Abilities (Animal Companion)", "specials")
+    print_list_and_descs("Special Abilities (Species)", "special_qualities")
+    print_list_and_descs("Feats", "feats")
+    print_list_and_descs("Bonus Tricks", "tricks")
 
     print("----- Skills -----")
     for skill_name, skill_val in stats["skills"].items():
@@ -191,11 +177,6 @@ def print_char_sheet(args, stats, specs):
 
         print(f"{skill_name}: {new_skill_val}")
     print()
-
-    print("----- Bonus Tricks -----")
-    tricks = stats["tricks"]
-    for trick in tricks:
-        print(trick)
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -226,14 +207,12 @@ if __name__ == '__main__':
 
     mods, specs = find_mods(args.druid_lvl)
 
-    # TODO: do this in a more organized way
-    # skill points remaining
     if args.changes:
         with open(args.changes) as f:
             changes = json.load(f)
     else:
         changes = dict()
 
-    new = update(base, mods, changes)
-    print_char_sheet(args, new, specs)
+    new = update(base, mods, specs, changes)
+    print_char_sheet(args, new)
 
