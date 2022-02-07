@@ -11,7 +11,7 @@ from lib.dnd_math import get_mod_from_score, mod_int_to_str, \
                      get_avg_roll
 from lib.dnd_desc import descriptions
 
-def update(base, mods, new_skills):
+def update(base, mods, changes):
 
     new = base
     new["hit_dice"] += mods["bonus"]["hit_dice"]
@@ -27,17 +27,19 @@ def update(base, mods, new_skills):
     new["saves"]["ref"] += hd_mods[1]
     new["saves"]["will"] += hd_mods[2]
 
-    num_new_feats = int(new["hit_dice"] / 3 + 1) - len(new["feats"])
+    num_allowed_feats = int(new["hit_dice"] / 3 + 1)
+    if "new_feats" in changes.keys():
+        new["feats"] += changes["new_feats"]
+    len_feats = len(new["feats"])
+    assert len_feats == num_allowed_feats, \
+           f'Unexpected feats ({len_feats} vs {num_allowed_feats} allowed)'
 
-    for i in range(num_new_feats):
-        new["feats"].append("PLAYER CHOICE")
-
-    if new_skills:
-        int_mod = new["ability_scores"]["int"]
-        int_mod = 1 if int_mod < 0 else int_mod
+    if changes["new_skills"]:
+        cand_int_mod = new["ability_scores"]["int"]
+        int_mod = 1 if cand_int_mod < 0 else cand_int_mod
         tsp = 0
         masp = 2 + (new["hit_dice"] * int_mod)
-        for i, v in new_skills.items():
+        for i, v in changes["new_skills"].items():
             try:
                 new["skills"][i] += v
             except KeyError:
@@ -218,7 +220,7 @@ if __name__ == '__main__':
         with open(args.changes) as f:
             changes = json.load(f)
 
-        new, spr = update(base, mods, changes["new_skills"])
+        new, spr = update(base, mods, changes)
         print_char_sheet(args, new, specs, changes["new_tricks"])
     else:
         new, spr = update(base, mods, None)
