@@ -60,10 +60,10 @@ def update(base, mods, changes):
 
     return new, masp - tsp
 
-def print_char_sheet(a, stats, specs):
-    print("=" * len(a.name))
-    print(a.name)
-    print("=" * len(a.name))
+def print_char_sheet(args, stats, specs):
+    print("=" * len(args.name))
+    print(args.name)
+    print("=" * len(args.name))
     species = stats["species"]
     size_str = stats["size"]
     hd = stats["hit_dice"]
@@ -147,7 +147,7 @@ def print_char_sheet(a, stats, specs):
     print("----- Special Attacks -----")
     for spec_attack in stats["special_attacks"]:
         print(spec_attack)
-        if a.descriptions:
+        if args.descriptions:
             print(descriptions["special_attacks"][spec_attack])
             print()
     print()
@@ -155,12 +155,12 @@ def print_char_sheet(a, stats, specs):
     print("----- Specials -----")
     for spec in specs:
         print(spec)
-        if a.descriptions:
+        if args.descriptions:
             print(descriptions["specials"][spec])
             print()
     for spec_qual in stats["special_qualities"]:
         print(spec_qual)
-        if a.descriptions:
+        if args.descriptions:
             print(descriptions["special_qualities"][spec_qual])
             print()
     
@@ -169,7 +169,7 @@ def print_char_sheet(a, stats, specs):
     print("----- Feats -----")
     for feat in stats["feats"]:
         print(feat)
-        if a.descriptions:
+        if args.descriptions:
             print(descriptions["feats"][feat])
             print()
     print()
