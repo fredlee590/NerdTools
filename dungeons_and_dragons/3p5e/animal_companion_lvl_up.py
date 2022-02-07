@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-import argparse, json, sys
+import argparse, json, sys, logging
 
 from lib.tables import  get_lvl_entry, find_mods, get_base_attack, \
                     get_save_mods, find_hd_mods, get_size_mod, \
@@ -10,6 +10,9 @@ from lib.tables import  get_lvl_entry, find_mods, get_base_attack, \
 from lib.dnd_math import get_mod_from_score, mod_int_to_str, \
                      get_avg_roll
 from lib.dnd_desc import descriptions
+
+logger = logging.getLogger(__name__)
+
 
 def update(base, mods, changes):
 
@@ -46,11 +49,11 @@ def update(base, mods, changes):
                 new["skills"][i] = v
             tsp += v
             if tsp > masp:
-                print(f"Max allowed skill points exceeded ({tsp} > {masp})")
+                logger.error(f"You are {tsp - masp} skill points over limit")
                 sys.exit(1)
 
         if tsp < masp != 0:
-            print(f"WARNING: You still have {masp - tsp} skill points available for allocation")
+            logger.error(f"You still have {masp - tsp} skill points available for allocation")
             sys.exit(1)
 
     new["max_allowed_tricks"] = mods["bonus"]["tricks"]
@@ -62,6 +65,10 @@ def update(base, mods, changes):
     return new
 
 def print_char_sheet(args, stats, specs):
+    def print_space_if_desc():
+        if not args.descriptions:
+            print()
+
     print("=" * len(args.name))
     print(args.name)
     print("=" * len(args.name))
@@ -151,7 +158,7 @@ def print_char_sheet(args, stats, specs):
         if args.descriptions:
             print(descriptions["special_attacks"][spec_attack])
             print()
-    print()
+    print_space_if_desc()
 
     print("----- Specials -----")
     for spec in specs:
@@ -159,21 +166,21 @@ def print_char_sheet(args, stats, specs):
         if args.descriptions:
             print(descriptions["specials"][spec])
             print()
+
     for spec_qual in stats["special_qualities"]:
         print(spec_qual)
         if args.descriptions:
             print(descriptions["special_qualities"][spec_qual])
             print()
+    print_space_if_desc()
     
-    print()
-
     print("----- Feats -----")
     for feat in stats["feats"]:
         print(feat)
         if args.descriptions:
             print(descriptions["feats"][feat])
             print()
-    print()
+    print_space_if_desc()
 
     print("----- Skills -----")
     for skill_name, skill_val in stats["skills"].items():
@@ -195,8 +202,7 @@ def print_char_sheet(args, stats, specs):
     num_tricks = len(tricks)
     trick_diff = max_allowed_tricks - num_tricks
     if num_tricks < max_allowed_tricks:
-        print(f"WARNING: You still have {trick_diff} bonus tricks to choose")
-    print()
+        logger.warn(f"You still have {trick_diff} bonus tricks to choose")
 
 def parse_args():
     parser = argparse.ArgumentParser()
@@ -209,12 +215,18 @@ def parse_args():
                         help="Show ability descriptions")
     parser.add_argument("--changes", "-c",
                         help="Changes for your animal companion. JSON file format.")
+    parser.add_argument("--log-level", "-l", choices=logging._nameToLevel.keys(),
+                        help="Log levels, pulled from standard log level enums.")
 
     return parser.parse_args()
 
 
 if __name__ == '__main__':
     args = parse_args()
+
+    logging.basicConfig(format='[%(asctime)-15s] %(levelname)-8s %(message)s',
+                        datefmt='%Y-%m-%d %H:%M:%S',
+                        level=args.log_level)
 
     with open(args.base_json) as f:
         base = json.load(f)
