@@ -25,7 +25,6 @@ def update(base, mods, specials, changes):
 
     new_base_attack, hd_mods = find_hd_mods(new["hit_dice"])
 
-    new["bonus_hp"] += mods["bonus"]["hit_dice"]
     new["base_attack"] = new_base_attack
     new["saves"]["fort"] += hd_mods[0]
     new["saves"]["ref"] += hd_mods[1]
@@ -94,10 +93,12 @@ def print_char_sheet(args, stats):
     hd = stats["hit_dice"]
     bhp = stats["bonus_hp"]
     hd_type = stats["hd_type"]
-    hp = int(hd * get_avg_roll(hd_type)) + bhp
+    con_mod = get_mod_from_score(stats["ability_scores"]["con"])
+    hp = int(hd * (get_avg_roll(hd_type) + con_mod)) + bhp
 
     feat_hp = 3 if "Toughness" in stats["feats"] else 0
 
+    logger.debug(f'{hd}x({get_avg_roll(hd_type)}+{con_mod})+{bhp}+{feat_hp}')
     print(f"Species: {species} ({size_str} - HD: {hd}) Hit Points: {hp + feat_hp}")
 
     speeds = stats["speeds"]
