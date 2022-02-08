@@ -2,13 +2,11 @@
 
 import argparse, json, sys, logging
 
-from lib.tables import  get_lvl_entry, find_mods, get_base_attack, \
-                    get_save_mods, find_hd_mods, get_size_mod, \
-                    get_size_mods, save_mods, size_mods, \
-                    base_attacks, upgrade_chart, skill_mods
+from lib.tables import find_mods, find_hd_mods, get_size_mods, \
+                       skill_mods
 
 from lib.dnd_math import get_mod_from_score, mod_int_to_str, \
-                     get_avg_roll
+                         get_avg_roll
 from lib.dnd_desc import descriptions
 
 logger = logging.getLogger(__name__)
