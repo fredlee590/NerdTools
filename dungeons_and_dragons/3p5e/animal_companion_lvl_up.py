@@ -1,19 +1,21 @@
 #!/usr/bin/python3
 
-import argparse, json, sys
+import argparse, json, sys, logging
 
-from lib.tables import  get_lvl_entry, find_mods, get_base_attack, \
-                    get_save_mods, find_hd_mods, get_size_mod, \
-                    get_size_mods, save_mods, size_mods, \
-                    base_attacks, upgrade_chart, skill_mods
+from lib.tables import find_mods, find_hd_mods, get_size_mods, \
+                       skill_mods
 
 from lib.dnd_math import get_mod_from_score, mod_int_to_str, \
-                     get_avg_roll
+                         get_avg_roll
 from lib.dnd_desc import descriptions
 
-def update(base, mods, new_skills):
+logger = logging.getLogger(__name__)
+
+
+def update(base, mods, specials, changes):
 
     new = base
+    logger.debug(f'init: {new}')
     new["hit_dice"] += mods["bonus"]["hit_dice"]
     new["nat_armor"] += mods["bonus"]["nat_armor"]
     new["ability_scores"]["str"] += mods["bonus"]["str_dex"]
@@ -21,47 +23,80 @@ def update(base, mods, new_skills):
 
     new_base_attack, hd_mods = find_hd_mods(new["hit_dice"])
 
-    new["bonus_hp"] += mods["bonus"]["hit_dice"]
     new["base_attack"] = new_base_attack
     new["saves"]["fort"] += hd_mods[0]
     new["saves"]["ref"] += hd_mods[1]
     new["saves"]["will"] += hd_mods[2]
+    new["specials"] = specials
 
-    num_new_feats = int(new["hit_dice"] / 3 + 1) - len(new["feats"])
+    logger.debug(f'pre-changes: {new}')
 
-    for i in range(num_new_feats):
-        new["feats"].append("PLAYER CHOICE")
+    num_allowed_feats = int(new["hit_dice"] / 3 + 1)
+    if "new_feats" in changes.keys():
+        new["feats"] += changes["new_feats"]
+    len_feats = len(new["feats"])
+    assert len_feats == num_allowed_feats, \
+           f'Expected {num_allowed_feats} feats. {len_feats} detected.'
 
-    if new_skills:
-        int_mod = new["ability_scores"]["int"]
-        int_mod = 1 if int_mod < 0 else int_mod
+    logger.debug(f'post-feats: {new}')
+
+    if "new_skills" in changes.keys():
+        cand_int_mod = new["ability_scores"]["int"]
+        int_mod = 1 if cand_int_mod < 0 else cand_int_mod
         tsp = 0
         masp = 2 + (new["hit_dice"] * int_mod)
-        for i, v in new_skills.items():
-            new["skills"][i] += v
+        for i, v in changes["new_skills"].items():
+            try:
+                new["skills"][i] += v
+            except KeyError:
+                new["skills"][i] = v
             tsp += v
-            if tsp > masp:
-                print(f"Max allowed skill points exceeded ({tsp} > {masp})")
-                sys.exit(1)
+        assert masp == tsp, \
+               f"Expected {masp} skill points allocated. {tsp} allocated."
 
-        new["max_allowed_tricks"] = mods["bonus"]["tricks"]
+    logger.debug(f'post-skills: {new}')
+
+    if "new_tricks" in changes.keys():
+        exp_num_tricks = mods["bonus"]["tricks"]
+        obs_num_tricks = len(changes["new_tricks"])
+        assert exp_num_tricks == obs_num_tricks, \
+               f"Expected {exp_num_tricks} tricks. Detected {obs_num_tricks}."
+        new["tricks"] = changes["new_tricks"]
     else:
-        masp = tsp = 0
-    return new, masp - tsp
+        new["tricks"] = list()
 
-def print_char_sheet(a, stats, specs, tricks):
-    print("=" * len(a.name))
-    print(a.name)
-    print("=" * len(a.name))
+    logger.debug(f'post-tricks: {new}')
+
+    return new
+
+def print_char_sheet(args, stats):
+    def print_space_if_desc():
+        if not args.descriptions:
+            print()
+
+    def print_list_and_descs(label, list_id):
+        print(f"----- {label} -----")
+        for i in stats[list_id]:
+            print(f'{i.upper()}')
+            if args.descriptions:
+                print(descriptions[list_id][i])
+                print()
+        print_space_if_desc()
+
+    print("=" * len(args.name))
+    print(args.name)
+    print("=" * len(args.name))
     species = stats["species"]
     size_str = stats["size"]
     hd = stats["hit_dice"]
     bhp = stats["bonus_hp"]
     hd_type = stats["hd_type"]
-    hp = int(hd * (get_avg_roll(hd_type) + bhp))
+    con_mod = get_mod_from_score(stats["ability_scores"]["con"])
+    hp = int(hd * (get_avg_roll(hd_type) + con_mod)) + bhp
 
     feat_hp = 3 if "Toughness" in stats["feats"] else 0
 
+    logger.debug(f'{hd}x({get_avg_roll(hd_type)}+{con_mod})+{bhp}+{feat_hp}')
     print(f"Species: {species} ({size_str} - HD: {hd}) Hit Points: {hp + feat_hp}")
 
     speeds = stats["speeds"]
@@ -90,26 +125,22 @@ def print_char_sheet(a, stats, specs, tricks):
     dex_mod = get_mod_from_score(stats["ability_scores"]["dex"])
     nat_armor = stats["nat_armor"]
     ac_size_mod, grap_size_mod, hide_size_mod = get_size_mods(size_str)
+    print(f"Natural Armor: {nat_armor}  Size AC Mod: {ac_size_mod}")
     ac = 10 + dex_mod + nat_armor + ac_size_mod
     tac = ac - nat_armor
     ffac = ac - dex_mod
     print(f"Armor Class: {ac}  Touch AC: {tac}  Flat-Footed AC: {ffac}")
 
-    base_attack_str = None
-    grapple_str = None
-    dex_attack_str = None
     init_str = mod_int_to_str(dex_mod)
-    for i in stats["base_attack"]:
-        grapple_val = i + str_mod + grap_size_mod
-        dex_attack_val = i + dex_mod + ac_size_mod
-        if base_attack_str:
-            base_attack_str += f"/{mod_int_to_str(i)}"
-            grapple_str += f"/{mod_int_to_str(grapple_val)}"
-            dex_attack_str += f"/{mod_int_to_str(dex_attack_val)}"
-        else:
-            base_attack_str = mod_int_to_str(i)
-            grapple_str = mod_int_to_str(grapple_val)
-            dex_attack_str = mod_int_to_str(dex_attack_val)
+    base_atks = stats["base_attack"]
+    base_prim_atk = base_atks[0]
+
+    grapples_str = [mod_int_to_str(x + str_mod + grap_size_mod) \
+                    for x in base_atks]
+    base_attack_str = '/'.join([mod_int_to_str(x) \
+                                for x in base_atks])
+    grapple_str = mod_int_to_str(base_prim_atk + str_mod + \
+                                 grap_size_mod)
     print(f"Base Attack: {base_attack_str}  Grapple: {grapple_str}  Initiative: {init_str}")
 
     print()
@@ -122,43 +153,28 @@ def print_char_sheet(a, stats, specs, tricks):
             else:
                 effects_str = effect
 
+        atk_range = attack['range']
+        assert atk_range == 'melee' or 'ft' in atk_range, \
+               "Invalid attack information. Need melee or range in feet."
+        attr_mod = str_mod if atk_range == 'melee' else dex_mod
+
+        dmg_mod = attack['add_damage'] + str_mod
+        atk_mod = attack['add_attack'] + attr_mod + base_prim_atk
+        atk_mod_str = mod_int_to_str(atk_mod)
+
         print(f"{attack['name']}:")
-        print(f"  Attack: {dex_attack_str}")
+        print(f"  Attack: {atk_mod_str}")
         print(f"  Range: {attack['range']}")
-        print(f"  Damage: {attack['damage']} + {str_mod} ({attack['critical']})")
+        print(f"  Damage: {attack['damage']} + {dmg_mod} ({attack['critical']})")
         print(f"  Type: {attack['type']}")
         print(f"  Effects: {effects_str}")
         print()
 
-    print("----- Special Attacks -----")
-    for spec_attack in stats["special_attacks"]:
-        print(spec_attack)
-        if a.descriptions:
-            print(descriptions["special_attacks"][spec_attack])
-            print()
-    print()
-
-    print("----- Specials -----")
-    for spec in specs:
-        print(spec)
-        if a.descriptions:
-            print(descriptions["specials"][spec])
-            print()
-    for spec_qual in stats["special_qualities"]:
-        print(spec_qual)
-        if a.descriptions:
-            print(descriptions["special_qualities"][spec_qual])
-            print()
-    
-    print()
-
-    print("----- Feats -----")
-    for feat in stats["feats"]:
-        print(feat)
-        if a.descriptions:
-            print(descriptions["feats"][feat])
-            print()
-    print()
+    print_list_and_descs("Special Attacks", "special_attacks")
+    print_list_and_descs("Special Abilities (Animal Companion)", "specials")
+    print_list_and_descs("Special Abilities (Species)", "special_qualities")
+    print_list_and_descs("Feats", "feats")
+    print_list_and_descs("Bonus Tricks", "tricks")
 
     print("----- Skills -----")
     for skill_name, skill_val in stats["skills"].items():
@@ -171,18 +187,6 @@ def print_char_sheet(a, stats, specs, tricks):
         print(f"{skill_name}: {new_skill_val}")
     print()
 
-    if tricks:
-        print("----- Bonus Tricks -----")
-        for trick in tricks:
-            print(trick)
-
-        max_allowed_tricks = new["max_allowed_tricks"]
-        num_tricks = len(tricks)
-        trick_diff = max_allowed_tricks - num_tricks
-        if num_tricks < max_allowed_tricks: 
-            print(f"WARNING: You still have {trick_diff} bonus tricks to choose")
-        print()
-
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("base_json",
@@ -194,6 +198,8 @@ def parse_args():
                         help="Show ability descriptions")
     parser.add_argument("--changes", "-c",
                         help="Changes for your animal companion. JSON file format.")
+    parser.add_argument("--log-level", "-l", choices=logging._nameToLevel.keys(),
+                        help="Log levels, pulled from standard log level enums.")
 
     return parser.parse_args()
 
@@ -201,22 +207,21 @@ def parse_args():
 if __name__ == '__main__':
     args = parse_args()
 
+    logging.basicConfig(format='[%(asctime)-15s] %(levelname)-8s %(message)s',
+                        datefmt='%Y-%m-%d %H:%M:%S',
+                        level=args.log_level)
+
     with open(args.base_json) as f:
         base = json.load(f)
 
     mods, specs = find_mods(args.druid_lvl)
 
-    # TODO: do this in a more organized way
-    # skill points remaining
     if args.changes:
         with open(args.changes) as f:
             changes = json.load(f)
-
-        new, spr = update(base, mods, changes["new_skills"])
-        print_char_sheet(args, new, specs, changes["new_tricks"])
     else:
-        new, spr = update(base, mods, None)
-        print_char_sheet(args, new, specs, None)
+        changes = dict()
 
-    if spr is not 0:
-        print(f"WARNING: You still have {spr} skill points available for allocation")
+    new = update(base, mods, specs, changes)
+    print_char_sheet(args, new)
+

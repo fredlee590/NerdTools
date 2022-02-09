@@ -12,7 +12,8 @@ descriptions = {
         "Weapon Finesse": "Prerequisite: Base attack bonus +1. With a light weapon, rapier, whip, or spiked chain made for a creature of your size category, you may use your Dexterity modifier instead of your Strength modifier on attack rolls. If you carry a shield, its armor check penalty applies to your attack rolls.",
         "Toughness": "You gain +3 hit points.",
         "Track": "To find tracks or to follow them for 1 mile requires a successful Survival check. You must make another Survival check every time the tracks become difficult to follow, such as when other tracks cross them or when the tracks backtrack and diverge.",
-        "PLAYER CHOICE": "Your animal companion is due for a new feat. Select one!"
+        "PLAYER CHOICE": "Your animal companion is due for a new feat. Select one!",
+        "Combat Reflexes": "When foes leave themselves open, you may make a number of additional attacks of opportunity equal to your Dexterity bonus. With this feat, you may also make attacks of opportunity while flat-footed. The Combat Reflexes feat does not allow a rogue to use her opportunist ability more than once per round. A fighter may select Combat Reflexes as one of his fighter bonus feats. A monk may select Combat Reflexes as a bonus feat at 2nd level."
     },
     "special_attacks": {
         "Rage": "After taking damage, fly into a berserk rage next turn, attacking madly until opponent is deceased. Gain +4 Strength, +4 Constitution, and -2 AC. User cannot end its rage voluntarily",
@@ -21,5 +22,11 @@ descriptions = {
     "special_qualities": {
         "Low-Light Vision": "A creature with low-light vision can see twice as far as a human in starlight, moonlight, torchlight, and similar conditions of shadowy illumination. It retains the ability to distinguish color and detail under these conditions. A spellcaster with low-light vision can read a scroll as long as even the tiniest candle flame is next to her as a source of light.",
         "Scent": "The creature can detect opponents within 30 feet by sense of smell. If the opponent is upwind, the range increases to 60 feet; if downwind, it drops to 15 feet. Strong scents, such as smoke or rotting garbage, can be detected at twice the ranges noted above. Overpowering scents, such as skunk musk or troglodyte stench, can be detected at triple normal range."
+    },
+    "tricks": {
+        "Attack": "The animal attacks apparent enemies. You may point to a particular creature that you wish the animal to attack, and it will comply if able.",
+        "Guard": "The animal stays in place and prevents others from approaching.",
+        "Fetch": "The animal goes and gets something. If you do not point out a specific item, the animal fetches some random object.",
+        "Defend": "The animal defends you (or is ready to defend you if no threat is present), even without any command being given.  Alternatively, you can command the animal to defend a specific other character."
     }
 }
