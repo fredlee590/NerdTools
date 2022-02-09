@@ -27,6 +27,8 @@
         {
             "name": "Bite",
             "type": "piercing",
+            "add_attack": 4,
+            "add_damage": 0,
             "damage": "1d4",
             "range": "melee",
             "critical": "x2",

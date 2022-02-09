@@ -27,10 +27,22 @@
         {
             "name": "Claw",
             "type": "piercing",
+            "add_attack": 4,
+            "add_damage": 2,
             "damage": "1d4",
             "range": "melee",
             "critical": "x2",
-            "effects": []
+            "effects": ["full attack 2 claws"]
+        },
+        {
+            "name": "Bite",
+            "type": "piercing",
+            "add_attack": -1,
+            "add_damage": 1,
+            "damage": "1d6",
+            "range": "melee",
+            "critical": "x2",
+            "effects": ["full attack 1 bite"]
         }
     ],
     "special_attacks": ["Rage"],
