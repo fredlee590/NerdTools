@@ -12,7 +12,7 @@ Here be da tools.
 ## Animal Companion Leveler
 
 Codifies the algorithm for Druids' animal companions for 3.5 edition according
-to [this wiki](http://archive.wizards.com/default.asp?x=dnd/rg/20070206a).
+to the Dungeons and Dragons 3.5 Edition Player Handbook.
 
 ### Usage
 
@@ -22,13 +22,12 @@ adding options can print out more detailed information. The full help is below:
 
 ```
 $ ./animal_companion_lvl_up.py --help
-usage: animal_companion_lvl_up.py [-h] [--name NAME] [--descriptions]
-                                  [--changes CHANGES]
+usage: animal_companion_lvl_up.py [-h] [--name NAME] [--descriptions] [--changes CHANGES]
+                                  [--log-level {CRITICAL,FATAL,ERROR,WARN,WARNING,INFO,DEBUG,NOTSET}]
                                   base_json druid_lvl
 
 positional arguments:
-  base_json             Base animal profile from Monster Manual. JSON file
-                        format.
+  base_json             Base animal profile from Monster Manual. JSON file format.
   druid_lvl             Druid level to determine bonuses
 
 optional arguments:
@@ -37,9 +36,14 @@ optional arguments:
   --descriptions, -d    Show ability descriptions
   --changes CHANGES, -c CHANGES
                         Changes for your animal companion. JSON file format.
+  --log-level {CRITICAL,FATAL,ERROR,WARN,WARNING,INFO,DEBUG,NOTSET}, -l {CRITICAL,FATAL,ERROR,WARN,WARNING,INFO,DEBUG,NOTSET}
+                        Log levels, pulled from standard log level enums.
+
 ```
 
-All data and inputs is (currently) handled in the JSON file format. All fields in the included base animal templates are required, so start there to create a new one. A sample change file, which represents the additional skills and feats for an animal companion is shown below:
+All data and inputs is (currently) handled in the JSON file format. All fields in the included base animal templates are required, so start there to create a new one. See examples of such animal template JSONs in the `templates/` directory. Reference the Dungeons and Dragons 3.5 edition Monster Manual when creating a new one.
+
+A sample change file, which represents the additional skills and feats for an animal companion is shown below:
 ```
 {
     "new_skills": {
@@ -54,6 +58,8 @@ All data and inputs is (currently) handled in the JSON file format. All fields i
         "Attack",
         "Guard",
         "Fetch"
+    ],
+    "new_feats": [
     ]
 }
 ```
@@ -62,12 +68,13 @@ Use these files to generate animal companion stats. Example usage is below:
 ```
 $ ./animal_companion_lvl_up.py templates/dire_rat.json 6 --name "Grog the Almighty" --changes grog.json
 =================
-Grog the Almighty
+Grog The Almighty
 =================
-Species: Dire Rat (small - HD: 5) Hit Points: 47
+Species: Dire Rat (small - HD: 5) Hit Points: 28
 nominal speed: 40 climb speed: 20
 str: 12 (+1) dex: 19 (+4) con: 12 (+1) int: 1 (-5) wis: 12 (+1) chr: 4 (-3)
-fort save: +7 ref save: +9 will save: +4
+fort save: +7 ref save: +6 will save: +7
+Natural Armor: 5  Size AC Mod: 1
 Armor Class: 20  Touch AC: 15  Flat-Footed AC: 16
 Base Attack: +4  Grapple: +1  Initiative: +4
 
@@ -80,19 +87,26 @@ Bite:
   Effects: disease
 
 ----- Special Attacks -----
-Disease
+DISEASE
 
------ Specials -----
-Link
-Share Spells
-Evasion
-Devotion
-Low-Light Vision
-Scent
+----- Special Abilities (Animal Companion) -----
+LINK
+SHARE SPELLS
+EVASION
+DEVOTION
+
+----- Special Abilities (Species) -----
+LOW-LIGHT VISION
+SCENT
 
 ----- Feats -----
-Alertness
-Weapon Finesse
+ALERTNESS
+WEAPON FINESSE
+
+----- Bonus Tricks -----
+ATTACK
+GUARD
+FETCH
 
 ----- Skills -----
 Climb: 14
@@ -101,9 +115,4 @@ Listen: 5
 Move Silently: 7
 Spot: 5
 Swim: 12
-
------ Bonus Tricks -----
-Attack
-Guard
-Fetch
 ```
