@@ -6,9 +6,10 @@
 # CHARGED_COL = 0
 # PAID_COL = 0
 
-#DATE_STR_FMT = ""
+# DATE_STR_FMT = ""
 
 skip_regex = list()
+
 
 # return whether input description is included in the descriptions to skip
 def check_skip(desc):
