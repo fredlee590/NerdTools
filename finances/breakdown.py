@@ -3,15 +3,16 @@
 import csv
 import argparse
 import logging
-from config import DESC_COL, CHARGED_COL, PAID_COL, check_skip
 
 logger = logging.getLogger(__name__)
+
 
 def parse_args():
     parser = argparse.ArgumentParser()
 
     parser.add_argument("csv_file", help="File to categorize")
     parser.add_argument("--log-level", "-l", default='INFO', help="Level of extra messages")
+    parser.add_argument("--config", "-c", default=None, help="Config library to import")
 
     return parser.parse_args()
 
@@ -21,6 +22,12 @@ if __name__ == '__main__':
 
     logging.basicConfig(format='[%(asctime)-15s] %(levelname)-8s %(message)s',
                         level=args.log_level.upper())
+
+    if args.config:
+        import importlib
+        cfg = importlib.import_module(args.config)
+    else:
+        import config as cfg
 
     logger.debug(args.csv_file)
 
@@ -32,11 +39,11 @@ if __name__ == '__main__':
         reader = csv.reader(csvfile, delimiter=',')
 
         for row in reader:
-            desc = row[DESC_COL]
-            charged = row[CHARGED_COL]
-            paid = row[PAID_COL]
+            desc = row[cfg.DESC_COL]
+            charged = row[cfg.CHARGED_COL]
+            paid = row[cfg.PAID_COL]
 
-            if check_skip(desc):
+            if cfg.check_skip(desc):
                 logger.debug("{} is on the list. Skipping.".format(desc))
                 continue
 
