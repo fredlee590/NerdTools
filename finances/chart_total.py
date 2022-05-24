@@ -53,7 +53,7 @@ if __name__ == '__main__':
             else:
                 logger.error('Both paid and gained columns are empty')
 
-            new_csv.append([date_str, delta_str])
+            new_csv.append([date_str, delta_str, desc])
 
     new_csv.sort(key=lambda x: datetime.strptime(x[0], cfg.DATE_STR_FMT))
     first = True
