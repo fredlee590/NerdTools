@@ -73,7 +73,7 @@ if __name__ == '__main__':
         shares += weight
 
     share_price = total / shares
-    print(f'fair share: {round(share_price, 2)}')
+    print(f'share price: {round(share_price, 2)}')
     print()
     for user, weight in weights.items():
         print(f"{user} pays {weight} shares out of {shares} total")
