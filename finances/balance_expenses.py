@@ -34,6 +34,8 @@ if __name__ == '__main__':
 
     total = 0.0
     paid = dict()
+    for user in weights.keys():
+        paid[user] = 0.0
 
     heading_row_counted = False
     with open(args.csv_file) as csvfile:
