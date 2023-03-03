@@ -12,6 +12,7 @@ def parse_args():
 
     parser.add_argument("csv_file", help="File for which to calculate equalization payments")
     parser.add_argument("--log-level", "-l", default='INFO', help="Level of extra messages")
+    parser.add_argument("--config", "-c", default=None, help="Config library to import")
 
     return parser.parse_args()
 
@@ -24,8 +25,19 @@ if __name__ == '__main__':
 
     logger.debug(args.csv_file)
 
+    if args.config:
+        import importlib
+        cfg = importlib.import_module(args.config)
+        weights = cfg.weights
+    else:
+        from config import weights
+
     total = 0.0
     paid = dict()
+    for user in weights.keys():
+        paid[user] = 0.0
+
+    heading_row_counted = False
     with open(args.csv_file) as csvfile:
         reader = csv.reader(csvfile, delimiter=',')
 
@@ -35,22 +47,40 @@ if __name__ == '__main__':
 
             logger.debug(row)
             # 2021-01-01,Person 1,1.23,food from today
-            date, user, _, note = row
-            cost = float(row[2])
+            date, user, cost, note = row
+            if date == "Date" and user == "Contributor" and note == "Notes":
+                if not heading_row_counted:
+                    heading_row_counted = True
+                    logger.debug("Heading row detected! Skipping")
+                else:
+                    logger.debug("Heading row detected again! That's weird")
+
+                continue
+
+            cost = float(cost)
 
             total += cost
+
+            assert user in weights.keys(), f"Contributor {user} weight unspecified in config!"
             if user not in paid.keys():
                 paid[user] = cost
             else:
                 paid[user] += cost
 
     print(f'total: {total}')
-    fair_share = total / len(paid.keys())
-    print(f'fair share: {round(fair_share, 2)}')
+    shares = 0
+    for weight in weights.values():
+        shares += weight
 
+    share_price = total / shares
+    print(f'fair share: {round(share_price, 2)}')
+    print()
+    for user, weight in weights.items():
+        print(f"{user} pays {weight} shares out of {shares} total")
+    print()
     logger.debug(paid)
     for k, v in paid.items():
-        paid[k] = v - fair_share
+        paid[k] = v - share_price * weights[k]
 
     logger.debug(f'current: {paid}')
     for k1 in paid.keys():
