@@ -26,6 +26,7 @@ if __name__ == '__main__':
 
     total = 0.0
     paid = dict()
+    heading_row_counted = False
     with open(args.csv_file) as csvfile:
         reader = csv.reader(csvfile, delimiter=',')
 
@@ -35,8 +36,17 @@ if __name__ == '__main__':
 
             logger.debug(row)
             # 2021-01-01,Person 1,1.23,food from today
-            date, user, _, note = row
-            cost = float(row[2])
+            date, user, cost, note = row
+            if date == "Date" and user == "Contributor" and note == "Notes":
+                if not heading_row_counted:
+                    heading_row_counted = True
+                    logger.debug("Heading row detected! Skipping")
+                else:
+                    logger.debug("Heading row detected again! That's weird")
+
+                continue
+
+            cost = float(cost)
 
             total += cost
             if user not in paid.keys():
