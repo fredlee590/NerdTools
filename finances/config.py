@@ -15,6 +15,12 @@ replace_regex = {
     "ANDTHIS": "With That",
 }
 
+weights = {
+    "Person1": 1,
+    "Person2": 1,
+    "Person3": 2,
+}
+
 
 # return whether input description is included in the descriptions to skip
 def check_skip(desc):
