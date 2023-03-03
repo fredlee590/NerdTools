@@ -13,6 +13,7 @@ def parse_args():
     parser.add_argument("csv_file", help="File to categorize")
     parser.add_argument("--log-level", "-l", default='INFO', help="Level of extra messages")
     parser.add_argument("--config", "-c", default=None, help="Config library to import")
+    parser.add_argument("--group", "-g", action="store_true", help="Group common expenses together")
 
     return parser.parse_args()
 
@@ -46,6 +47,14 @@ if __name__ == '__main__':
             if cfg.check_skip(desc):
                 logger.debug("{} is on the list. Skipping.".format(desc))
                 continue
+
+            if args.group:
+                for k, v in cfg.replace_regex.items():
+                    if k in desc:
+                        old_len = len(desc)
+                        new_len = len(v)
+                        assert new_len < old_len
+                        desc = v + " " * (old_len - new_len)
 
             logger.debug("{}: charged ({}) paid ({})".format(desc, charged, paid))
 

@@ -10,6 +10,11 @@
 
 skip_regex = list()
 
+replace_regex = {
+    "REPLACETHIS": "With This",
+    "ANDTHIS": "With That",
+}
+
 
 # return whether input description is included in the descriptions to skip
 def check_skip(desc):
