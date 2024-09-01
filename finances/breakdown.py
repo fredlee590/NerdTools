@@ -35,6 +35,7 @@ if __name__ == '__main__':
     breakdown = dict()
     total_charged = 0.0
     total_paid = 0.0
+    max_len = 0
 
     with open(args.csv_file) as csvfile:
         reader = csv.reader(csvfile, delimiter=',')
@@ -51,15 +52,16 @@ if __name__ == '__main__':
             if args.group:
                 for k, v in cfg.replace_regex.items():
                     if k in desc:
-                        old_len = len(desc)
-                        new_len = len(v)
-                        assert new_len < old_len
-                        desc = v + " " * (old_len - new_len)
-
-            logger.debug("{}: charged ({}) paid ({})".format(desc, charged, paid))
+                        desc_len = len(desc)
+                        max_len = desc_len if desc_len > max_len else max_len
+                        desc = v
 
             f_charged = float(charged) if charged else 0.0
+            f_charged = -f_charged if f_charged < 0 else f_charged
             f_paid = float(paid) if paid else 0.0
+            f_paid = -f_paid if f_paid > 0 else f_paid
+
+            logger.debug("{}: charged ({}) paid ({})".format(desc, f_charged, f_paid))
 
             if not f_paid:
                 try:
@@ -77,7 +79,7 @@ if __name__ == '__main__':
     for desc in breakdown:
         f_charged = breakdown[desc]
         percentage = 100 * f_charged / total_charged
-        print("{}: {:.2f} ({:.2f}%)".format(desc, f_charged, percentage))
+        print("{: <{max_len}}: {:.2f} ({:.2f}%)".format(desc, f_charged, percentage, max_len=max_len))
 
         total_percentage += percentage
 
@@ -85,6 +87,6 @@ if __name__ == '__main__':
     print("----- Summary -----")
     print("Total charged: {:.2f}".format(total_charged))
     print("Total paid: {:.2f}".format(-1 * total_paid))
-    print("Net: {:.2f}".format(total_charged + total_paid))
+    print("Net Balance Change: {:.2f}".format(total_charged + total_paid))
 
     logger.debug("Total percentage sanity check (this should be 100%): {:.2f}%".format(total_percentage))
