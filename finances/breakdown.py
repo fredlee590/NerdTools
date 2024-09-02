@@ -14,8 +14,15 @@ def parse_args():
     parser.add_argument("--log-level", "-l", default='INFO', help="Level of extra messages")
     parser.add_argument("--config", "-c", default=None, help="Config library to import")
     parser.add_argument("--group", "-g", action="store_true", help="Group common expenses together")
+    parser.add_argument("--only-show", "-s", nargs="+", help="Only show selected groups")
 
     return parser.parse_args()
+
+def get_group(desc):
+    for k, v in cfg.replace_regex.items():
+        if k in desc:
+            return v
+    return None
 
 
 if __name__ == '__main__':
@@ -49,12 +56,17 @@ if __name__ == '__main__':
                 logger.debug("{} is on the list. Skipping.".format(desc))
                 continue
 
+            group = get_group(desc)
+
+            if args.only_show:
+                if group not in args.only_show:
+                    continue
+
             if args.group:
-                for k, v in cfg.replace_regex.items():
-                    if k in desc:
-                        desc_len = len(desc)
-                        max_len = desc_len if desc_len > max_len else max_len
-                        desc = v
+                if group:
+                    desc = group
+                desc_len = len(desc)
+                max_len = desc_len if desc_len > max_len else max_len
 
             f_charged = float(charged) if charged else 0.0
             f_charged = -f_charged if f_charged < 0 else f_charged
