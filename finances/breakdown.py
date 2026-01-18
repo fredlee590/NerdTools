@@ -14,6 +14,7 @@ def parse_args():
     parser.add_argument("--log-level", "-l", default='INFO', help="Level of extra messages")
     parser.add_argument("--config", "-c", default=None, help="Config library to import")
     parser.add_argument("--group", "-g", action="store_true", help="Group common expenses together")
+    parser.add_argument("--show-group", "-s", type=str, help="List of groups to show. Special value '' for items without group assigned")
 
     return parser.parse_args()
 
@@ -24,13 +25,14 @@ if __name__ == '__main__':
     logging.basicConfig(format='[%(asctime)-15s] %(levelname)-8s %(message)s',
                         level=args.log_level.upper())
 
+    logger.debug(args)
+
     if args.config:
         import importlib
         cfg = importlib.import_module(args.config)
     else:
         import config as cfg
 
-    logger.debug(args.csv_file)
 
     breakdown = dict()
     total_charged = 0.0
@@ -40,12 +42,26 @@ if __name__ == '__main__':
         reader = csv.reader(csvfile, delimiter=',')
 
         for row in reader:
+            skip_row = False
+
             desc = row[cfg.DESC_COL]
             charged = row[cfg.CHARGED_COL]
             paid = row[cfg.PAID_COL]
 
             if cfg.check_skip(desc):
                 logger.debug("{} is on the list. Skipping.".format(desc))
+                continue
+
+            if isinstance(args.show_group, str):
+                for k, v in cfg.replace_regex.items():
+                    if args.show_group in v and k in desc:
+                        if len(args.show_group) == 0:
+                            skip_row = True
+                        break
+                else:
+                   skip_row = len(args.show_group) > 0
+
+            if skip_row:
                 continue
 
             if args.group:
